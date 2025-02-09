@@ -141,19 +141,6 @@
 			},
 			{
 				"inputs": [],
-				"name": "currentStatus",
-				"outputs": [
-					{
-						"internalType": "enum Voting.WorkflowStatus",
-						"name": "",
-						"type": "uint8"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
 				"name": "endProposalSession",
 				"outputs": [],
 				"stateMutability": "nonpayable",
@@ -193,6 +180,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "getProposalsString",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -200,7 +200,7 @@
 						"type": "address"
 					}
 				],
-				"name": "getVoterIDByAddress",
+				"name": "getVotedProposalIdByAddress",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -212,20 +212,57 @@
 				"type": "function"
 			},
 			{
-				"inputs": [],
-				"name": "getWinner",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getWinnerProposal",
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"name": "getVoterVote",
 				"outputs": [
 					{
 						"internalType": "string",
 						"name": "",
 						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getWinnerProposals",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "description",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "voteCount",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct Voting.Proposal",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getnumberVoter",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -239,43 +276,6 @@
 						"internalType": "address",
 						"name": "",
 						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "previousStatus",
-				"outputs": [
-					{
-						"internalType": "enum Voting.WorkflowStatus",
-						"name": "",
-						"type": "uint8"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "proposals",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "voteCount",
-						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -318,19 +318,6 @@
 				"name": "renounceOwnership",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "showProposals",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "",
-						"type": "string"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -447,11 +434,11 @@
 			]
 		},
 		"contracts/Voting.sol": {
-			"keccak256": "0x133063709d6028d7063d54fa3cbc40398437c27ff466d8fa34c28cfe18009664",
+			"keccak256": "0x82305fc0c703ac6086755a96d2caa831338e0b7f5be4357e71e172ccb2d2566b",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://881a15c34572c16d3f3b708688430e8c3a89880df046ff9402412963572bd5fe",
-				"dweb:/ipfs/QmREnnm6PU1fu8CKiDu8oFiA5zwono2YfbrikEvfJxUm86"
+				"bzz-raw://454538da6781deb2307c8fe537e391e56b14a8d7ee3ace3ab7cbc8d8a9cd9cbc",
+				"dweb:/ipfs/QmYoqyqZ5u5CpFp52kJFdjmfmKEkDqgHS9oo8GKdyJ7Kch"
 			]
 		}
 	},
