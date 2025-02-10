@@ -130,25 +130,6 @@
 				"type": "function"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "_proposalId",
-						"type": "uint256"
-					}
-				],
-				"name": "getAddressByProposalId",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
 				"inputs": [],
 				"name": "getCurrentStatus",
 				"outputs": [
@@ -202,11 +183,6 @@
 								"internalType": "uint256",
 								"name": "voteCount",
 								"type": "uint256"
-							},
-							{
-								"internalType": "address",
-								"name": "voter",
-								"type": "address"
 							}
 						],
 						"internalType": "struct Voting.Proposal[]",
@@ -238,11 +214,6 @@
 								"internalType": "uint256",
 								"name": "voteCount",
 								"type": "uint256"
-							},
-							{
-								"internalType": "address",
-								"name": "voter",
-								"type": "address"
 							}
 						],
 						"internalType": "struct Voting.Proposal",
@@ -320,11 +291,6 @@
 								"internalType": "uint256",
 								"name": "voteCount",
 								"type": "uint256"
-							},
-							{
-								"internalType": "address",
-								"name": "voter",
-								"type": "address"
 							}
 						],
 						"internalType": "struct Voting.Proposal",
@@ -383,7 +349,13 @@
 					}
 				],
 				"name": "propose",
-				"outputs": [],
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
@@ -403,13 +375,6 @@
 			{
 				"inputs": [],
 				"name": "renounceOwnership",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "reset",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -445,7 +410,7 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "_proposald",
+						"name": "_proposalId",
 						"type": "uint256"
 					}
 				],
@@ -497,7 +462,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/VotingExtended.sol": "Voting"
+			"contracts/Voting.sol": "Voting"
 		},
 		"evmVersion": "cancun",
 		"libraries": {},
@@ -527,12 +492,12 @@
 				"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF"
 			]
 		},
-		"contracts/VotingExtended.sol": {
-			"keccak256": "0xe63438ba1261be733ff6f45338e6884ae53beb274146c17dea76938cbdf79ea1",
+		"contracts/Voting.sol": {
+			"keccak256": "0x863cceadf6ca1efb54a3a05daa5bd5157578cd7adacbd5e045922ac94c5f294e",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://3e992c65393ec69b7d5a513d3fe8a88cbd4e779a86d31b8139b29b4752dceb86",
-				"dweb:/ipfs/QmX9uk1x8PSdUpu7vGP2fwcjPZgj42E8Ttkgbawzp18VHN"
+				"bzz-raw://9dc5c545e8e2d4a2149eed013f5f1fd33b39714ac0548c82e687a45f8548500f",
+				"dweb:/ipfs/QmUo3AMnQoJS2xfQ8qivp1DwiDvdT2TXjGkLuvyUoRDLZs"
 			]
 		}
 	},

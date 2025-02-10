@@ -26,22 +26,22 @@ contract Voting is Ownable {
     WorkflowStatus currentStatus = WorkflowStatus.RegisteringVoters;
 
     // Id de la proposition gagnante
-    uint256 winningProposalId; 
+    uint private winningProposalId; 
 
     // Nombre de votants
-    uint256 voterCount; 
+    uint private voterCount; 
 
     // Nombre de votes
-    uint voteCountTotal;
+    uint private voteCountTotal;
 
     // Nombre de propositions
-    uint numberProposal;
+    uint private numberProposal;
 
     // Nombre de gagnants
-    uint winnerCount; 
+    uint private winnerCount; 
 
     // Nombre de votes de la proposition gagnante
-    uint voteWinnerCount = 1; 
+    uint private voteWinnerCount = 1; 
 
     // Evenements
     event VoterRegistered(address voterAddress);
@@ -85,19 +85,21 @@ contract Voting is Ownable {
         return "Ok proposal registered";
     }
 
-    function vote(uint256 _proposald) external restrictOwnerToVote {
-        require(_proposald < proposals.length, "This proposal ID does not exists");
+    function vote(uint _proposalId) external restrictOwnerToVote(_proposalId) {
+        require(_proposalId < proposals.length, "This proposal ID does not exists");
+        // Modifier la whitelist
         whitelistVoter[msg.sender].hasVoted = true;
-        whitelistVoter[msg.sender].votedProposalId = _proposald;
-        proposals[_proposald].voteCount++;
+        whitelistVoter[msg.sender].votedProposalId = _proposalId;
+        proposals[_proposalId].voteCount++;
         voteCountTotal++;
-        emit Voted(msg.sender, _proposald);
+        emit Voted(msg.sender, _proposalId);
     } 
 
-    modifier restrictOwnerToVote(){
+    modifier restrictOwnerToVote(uint _proposalId){
         if(owner() == msg.sender) {
             require(winnerCount > 1, "You can only vote if there is more than 1 winner");
             winnerCount = 1;
+            winningProposalId = _proposalId;
         } else {
             require(currentStatus == WorkflowStatus.VotingSessionStarted, "The voting session is not started"); 
             require(whitelistVoter[msg.sender].isRegistered == true, "You are not registered");
