@@ -394,6 +394,13 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "talliedVotes",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -415,13 +422,6 @@
 					}
 				],
 				"name": "vote",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "votesTallied",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -493,11 +493,11 @@
 			]
 		},
 		"contracts/Voting.sol": {
-			"keccak256": "0x863cceadf6ca1efb54a3a05daa5bd5157578cd7adacbd5e045922ac94c5f294e",
+			"keccak256": "0x63ccbf6186c50aeb3e1db01d23b4aa23630720bb7e74b657b1ade2fee81f73fe",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://9dc5c545e8e2d4a2149eed013f5f1fd33b39714ac0548c82e687a45f8548500f",
-				"dweb:/ipfs/QmUo3AMnQoJS2xfQ8qivp1DwiDvdT2TXjGkLuvyUoRDLZs"
+				"bzz-raw://a8c20b25bef7499e64e027c1069c56a3156d3fb5f7a1797f6e98bd6e6a6da19e",
+				"dweb:/ipfs/Qmb7LN2rubdo48tJGeZvmFZyhQXn4Gs9xy532nEe5qpcE8"
 			]
 		}
 	},

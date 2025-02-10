@@ -20,7 +20,7 @@ contract VotingPlus is Ownable {
     Proposal[] proposals;
 
     // Liste des addresses des votants
-    address[] voterAddress;
+    address[] voterRegisteredAddress;
 
     // Gère les différents états d’un vote
     enum WorkflowStatus { RegisteringVoters, ProposalsRegistrationStarted, ProposalsRegistrationEnded, VotingSessionStarted, VotingSessionEnded, VotesTallied }
@@ -44,7 +44,7 @@ contract VotingPlus is Ownable {
     uint private voteWinnerCount = 1; 
 
     // Evenements
-    event VoterRegistered(address voterAddress);
+    event VoterRegistered(address voterRegisteredAddress);
     event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
     event ProposalRegistered(uint proposalId);
     event Voted(address voter, uint proposalId);
@@ -57,11 +57,7 @@ contract VotingPlus is Ownable {
     
     // Vérifier que l'adresse est dans la whitelist  
     function checkIfRegistered(address _address) public view returns (bool) {
-        bool isRegistered;
-        if (whitelistVoter[_address].isRegistered) {
-            isRegistered = true;
-        }
-        return isRegistered;
+        return whitelistVoter[_address].isRegistered;
     }
 
 
@@ -74,6 +70,7 @@ contract VotingPlus is Ownable {
 
         Voter memory voter = Voter(true, false, 0);
         whitelistVoter[_address] = voter;
+        voterRegisteredAddress.push(_address);
         voterCount++;
         emit VoterRegistered(_address);
     }
@@ -102,7 +99,6 @@ contract VotingPlus is Ownable {
         whitelistVoter[msg.sender].votedProposalId = _proposald;
         proposals[_proposald].voteCount++;
         voteCountTotal++;
-        voterAddress.push(msg.sender);
         emit Voted(msg.sender, _proposald);
     } 
 
@@ -163,11 +159,11 @@ contract VotingPlus is Ownable {
     function reset() external onlyOwner {
         require(currentStatus ==  WorkflowStatus.VotesTallied, "The last vote has not been tallied");
         // Réinitialiser le mapping des votants
-        for (uint i = 0; i < voterAddress.length; i++) {
-            whitelistVoter[voterAddress[i]] = Voter({ isRegistered: false, hasVoted: false, votedProposalId: 0 });
+        for (uint i = 0; i < voterRegisteredAddress.length; i++) {
+            whitelistVoter[voterRegisteredAddress[i]] = Voter({ isRegistered: false, hasVoted: false, votedProposalId: 0 });
         }
         delete proposals;
-        delete voterAddress;
+        delete voterRegisteredAddress;
         winnerCount = 0;        
         winningProposalId = 0; 
         voterCount = 0;
@@ -266,4 +262,11 @@ contract VotingPlus is Ownable {
         return voteWinnerCount;
     }
 
+    function isRegistered(address _address) external view returns(bool){
+        return checkIfRegistered(_address);
+    }
+
+    function getVoterRegisteredAddress() external view returns(address[] memory){
+        return voterRegisteredAddress;
+    }
 }
