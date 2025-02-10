@@ -7,94 +7,79 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // Empecher de register deux fois le meme votant OK
 // Empecher de proposer deux fois le meme votant ou limiter à une seule proposition
 // Empecher de lancer la proposal season si pas de votants enregistrés
+// Si il y a plusieurs votants, et que certains ont voté 0 et le reste n'a pas voté
+// Si il y a plusieurs votants, et que certains ont voté mais la majorité n'a pas voté et donc 0 est l'indice le plus présent dans votedProposalId
+
 
 contract Voting is Ownable {
 
     //////////////////////////////////////////////// Variables ////////////////////////////////////////////////
-
-    // Whitelist des votants
-    mapping(address => Voter) whitelistVoter;
-
-    // Propositions
-    Proposal[] proposals;
-
-    // Proposal[] private proposalWinners;
-
-
-    // Id de la proposition gagnante
-    uint256 winningProposalId; 
-
-    // Nombre de votants
-    uint256 numberVoter; 
-
-    // Nombre de propositions
-    uint numberProposal;
-
-    // Nombdre de gagnants
-    uint numberWinners; 
-
-    uint numberWinnersVote;   
-
-    // Evenements
-    event VoterRegistered(address voterAddress);
-    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
-    event ProposalRegistered(uint proposalId);
-    event Voted(address voter, uint proposalId);
 
     // Votant
     struct Voter { bool isRegistered; bool hasVoted; uint votedProposalId; } 
     
     // Proposition
     struct Proposal { string description; uint voteCount; }
-    
+
+    // Whitelist des votants
+    mapping(address => Voter) whitelistVoter;
+
+    // Liste des propositions
+    Proposal[] proposals;
+
     // Gère les différents états d’un vote
     enum WorkflowStatus { RegisteringVoters, ProposalsRegistrationStarted, ProposalsRegistrationEnded, VotingSessionStarted, VotingSessionEnded, VotesTallied }
-
-     // Statut de la session précédente
-    // WorkflowStatus public previousStatus;
 
     // Statut de la session actuelle
     WorkflowStatus currentStatus = WorkflowStatus.RegisteringVoters;
 
+    // Id de la proposition gagnante
+    uint256 winningProposalId; 
 
+    // Nombre de votants
+    uint256 voterCount; 
 
+    // Nombre de votes
+    uint voteCountTotal;
+
+    // Nombre de propositions
+    uint numberProposal;
+
+    // Nombre de gagnants
+    uint winnerCount; 
+
+    // Nombre de Svotes de la proposition gagnante
+    uint voteWinnerCount = 1; 
+
+    // Evenements
+    event VoterRegistered(address voterAddress);
+    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
+    event ProposalRegistered(uint proposalId);
+    event Voted(address voter, uint proposalId);
+    
     //////////////////////////////////////////////// Constructeur ////////////////////////////////////////////////
 
     constructor() Ownable(msg.sender) {
-        proposals.push(Proposal({
-                description: "The winner has not been choosen yet",
-                voteCount: 0
-        }));
     }
 
 
     //////////////////////////////////////////////// Fonctions Owner ////////////////////////////////////////////////
 
-    function registerVoter(address _voterAddress) external onlyOwner {
+    function registerVoter(address _address) external onlyOwner {
         require(currentStatus == WorkflowStatus.RegisteringVoters, "You are not in voter registration period");
-        require(whitelistVoter[_voterAddress].isRegistered == false, "You already have add this adress");
+        require(whitelistVoter[_address].isRegistered == false, "You already have add this adress");
 
         Voter memory voter = Voter(true, false, 0);
-        whitelistVoter[_voterAddress] = voter;
-        numberVoter++;
-        emit VoterRegistered(_voterAddress);
+        whitelistVoter[_address] = voter;
+        voterCount++;
+        emit VoterRegistered(_address);
     }
   
 
     //////////////////////////////////////////////// Fonctions électeurs ////////////////////////////////////////////////
 
-    function getProposalsString() external view returns (string memory){
-        // Remplir le tableau avec les valeurs de balance correspondant à chaque adresse
-        string memory proposalList;
-        for (uint256 i = 0; i < proposals.length; i++) {
-            bytes memory concatenatedBytes = abi.encodePacked(proposalList, proposals[i].description);
-            proposalList = string(concatenatedBytes);
-        }
-        return proposalList;
-    }
-
     function propose(string memory _proposal) external returns (string memory){
-        require(currentStatus == WorkflowStatus.ProposalsRegistrationStarted, "The registration period is not started"); 
+        require(currentStatus == WorkflowStatus.ProposalsRegistrationStarted, "The proposal session is not started"); 
         require(owner() != msg.sender, "You are the owner of this contract, you can not propose");
         require(whitelistVoter[msg.sender].isRegistered == true, "You are not registered");
 
@@ -108,23 +93,25 @@ contract Voting is Ownable {
         return "Ok proposal registered";
     }
 
-    function vote(uint256 _vote) external {
-        require(currentStatus == WorkflowStatus.VotingSessionStarted, "The voting session is not started"); 
-        require(owner() != msg.sender, "You are the owner of this contract, you can not vote");
-        require(whitelistVoter[msg.sender].isRegistered == true, "You are not registered");
-        require(_vote < proposals.length + 1, "This proposal ID does not exists");
-        
+    function vote(uint256 _proposald) external restrictOwner {
+        require(_proposald < proposals.length, "This proposal ID does not exists");
         whitelistVoter[msg.sender].hasVoted = true;
-        whitelistVoter[msg.sender].votedProposalId = _vote;
-        proposals[_vote].voteCount++;
-
+        whitelistVoter[msg.sender].votedProposalId = _proposald;
+        proposals[_proposald].voteCount++;
+        voteCountTotal++;
+        emit Voted(msg.sender, _proposald);
     } 
 
-    modifier check(){
+    modifier restrictOwner(){
         if(owner() == msg.sender) {
-            require(currentStatus == WorkflowStatus.VotingSessionEnded, "You can only vote if there is more than 1 winner");
-            _;
+            require(winnerCount > 1, "You can only vote if there is more than 1 winner");
+            winnerCount = 1;
+        } else {
+            require(currentStatus == WorkflowStatus.VotingSessionStarted, "The voting session is not started"); 
+            require(whitelistVoter[msg.sender].isRegistered == true, "You are not registered");
+            require(whitelistVoter[msg.sender].hasVoted == false, "You already voted");
         }
+        _;
     }
 
 
@@ -132,111 +119,159 @@ contract Voting is Ownable {
 
     function startProposalSession() external onlyOwner {
         require(currentStatus ==  WorkflowStatus.RegisteringVoters, "You can not start again the proposal session");
-        require(numberVoter > 1, "You must register at least 2 addresses");
+        require(voterCount > 1, "You must register at least 2 addresses");
         currentStatus = WorkflowStatus.ProposalsRegistrationStarted;
-        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) + 1), currentStatus);
+        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) - 1), currentStatus);
     }
 
     function endProposalSession() external onlyOwner {
         require(currentStatus ==  WorkflowStatus.ProposalsRegistrationStarted, "The proposal session has not started or has already been ended");
+        require(proposals.length > 0, "There are no proposals registered");
         currentStatus = WorkflowStatus.ProposalsRegistrationEnded;
-        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) + 1), currentStatus);
+        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) - 1), currentStatus);
     }
 
 
     function startVoteSession() external onlyOwner {
         require(currentStatus ==  WorkflowStatus.ProposalsRegistrationEnded, "The proposal session is not ended or the vote session has already started");
         currentStatus = WorkflowStatus.VotingSessionStarted;
-        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) + 1), currentStatus);
+        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) - 1), currentStatus);
     }
 
 
     function endVoteSession() external onlyOwner {
         require(currentStatus ==  WorkflowStatus.VotingSessionStarted, "The vote session has not started or has already ended");
+        require(voteCountTotal > 0, "There are no vote registered");
         currentStatus = WorkflowStatus.VotingSessionEnded;
-        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) + 1), currentStatus);
+        setWinnerProposal(); 
+        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) - 1), currentStatus);
        
     }
 
-
     function votesTallied() external onlyOwner {
         require(currentStatus ==  WorkflowStatus.VotingSessionEnded, "The vote session is not ended");
-        setWinnerProposal();
-        require(winningProposalId > 0 && numberWinners == 1, "There is more than 1 winner, you have to vote");
+        require(winnerCount == 1, "There is more than 1 winner, you have to vote");
         currentStatus = WorkflowStatus.VotesTallied;
-        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) + 1), currentStatus);
+        emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) - 1), currentStatus);
+    }
+
+    function reset() external onlyOwner {
+        require(currentStatus ==  WorkflowStatus.VotesTallied, "The last vote has not been tallied");
+
+        // for (uint i = 0; i < proposals.length; i++) {
+        //     whitelistVoter
+        // }
+                    // mapping(address => Voter) whitelistVoter;
+        //
+        delete proposals;
+        winnerCount = 0;        
+        winningProposalId = 0; 
+        voterCount = 0;
+        voteCountTotal = 0;
+        numberProposal = 0;
+
     }
 
     //////////////////////////////////////////////// Fonctions getter et setter ////////////////////////////////////////////////
+    
+    // // Retourne l'ID de la proposition pour laquelle un électeur a voté
+    // function getVotedProposalIdByAddress(address _address) external view returns(uint){
+    //     // Vérifier que l'adresse a été ajoutée à la whitelist
+    //     require(whitelistVoter[_address].isRegistered == true, "This address is not registered");
+    //     return whitelistVoter[_address].votedProposalId;
+    // }
+
+    // // Retourne la proposition pour laquelle un votant a voté
+    // function getVoterProposal(address _address) external view returns (string memory) {
+    //     // Vérifier que l'adresse a été ajoutée à la whitelist
+    //     require(whitelistVoter[_address].isRegistered == true, "This address is not registered");
+
+    //     uint votedProposalId = whitelistVoter[_address].votedProposalId;
+    //     string memory proposalChoosen = proposals[votedProposalId].description;
+
+    //     // Vérifier que l'adresse a déjà voté
+    //     if( keccak256(abi.encodePacked(proposalChoosen)) == keccak256(abi.encodePacked(""))) {
+    //         proposalChoosen = "This address has not voted yet";
+    //     }
+    //     return proposalChoosen;
+    // }
+
+    function getVoteByAddress(address _address) external view returns(Proposal memory){
+        // Vérifier que l'adresse a été ajoutée à la whitelist
+        require(whitelistVoter[_address].isRegistered == true, "This address is not registered");
+        require(whitelistVoter[_address].hasVoted == true, "This address has not voted");
+
+        uint votedProposalId = whitelistVoter[_address].votedProposalId;
+        return proposals[votedProposalId];
+    }
 
     function setWinnerProposal() private onlyOwner {
-        require(currentStatus ==  WorkflowStatus.VotingSessionEnded, "Vote session did not take place or is not ended");
-        for (uint256 i = 1; i < proposals.length; i++) {
-            if (proposals[i].voteCount > numberWinnersVote) {
-                numberWinnersVote = proposals[i].voteCount;
+        for (uint i = 0; i < proposals.length; i++) {
+            if (proposals[i].voteCount >= voteWinnerCount) {
+                voteWinnerCount = proposals[i].voteCount;
                 winningProposalId = i;
-                numberWinners++;
-                // proposalWinners.push(proposals[i]);
+                winnerCount++;
             }      
         } 
     }
 
-    // // Retourne la description de la proposition gagnante
-    // function getWinnerProposalString() external view returns (string memory) {
-    //     string memory winnersList ;
-    //     for (uint256 i = 1; i < proposals.length; i++) {
-    //         if (proposals[i].voteCount == winningProposalId) {
-    //             concatenateStrings(" Description: ", proposals[i].description);
-    //         }      
-    //     } 
-    // }
-    
-    function getWinnerProposals() external view returns (Proposal memory) {
+
+     // Retourne la proposition gagnante   
+    function getWinnerProposal() external view returns (Proposal memory) {
         require(currentStatus ==  WorkflowStatus.VotesTallied, "The winner have not been choosen yet");
         return proposals[winningProposalId];
     }
 
+    // Retourne la description de la proposition gagnante 
+    function getWinner_proposaldescription() external view returns (string memory) {
+        require(currentStatus ==  WorkflowStatus.VotesTallied, "The winner have not been choosen yet");
+        return proposals[winningProposalId].description;
+    }
+
+    // Retourne l'id de la proposition gagnante 
+    function getWinnerProposalId() external view returns (uint) {
+        require(currentStatus ==  WorkflowStatus.VotesTallied, "The winner have not been choosen yet");
+        return winningProposalId;
+    }
 
     // Retourne le statut actuel de la session
     function getCurrentStatus() external view returns (WorkflowStatus) {
         return currentStatus;
     }
 
+    // Retourne le statut précédent de la session actuelle
+    function getPreviousStatus() external view returns (WorkflowStatus) {
+        return WorkflowStatus(uint(currentStatus) - 1);
+    }
+
     // Retourne le nombre de propositions  
-    function getProposalLength() external view returns(uint){
+    function getProposalCount() external view returns(uint){
         return proposals.length;
     }
 
-    // Retourne le nombre actuel d'électeurs
-    function getnumberVoter() external view returns(uint){
-        return numberVoter;
-    }
-    
-    // Retourne l'ID de la proposition pour laquelle un électeur a voté
-    function getVotedProposalIdByAddress(address _address) external view returns(uint){
-        return whitelistVoter[_address].votedProposalId;
+    // Retourne les propositions  
+    function getProposals() external view returns(Proposal[] memory){
+        return proposals;
     }
 
-    // Retourne la proposition pour laquelle un électeur a voté
-    function getVoterVote(address _address) external view returns (string memory) {
-        // Vérifier que l'adresse a été ajoutée à la whitelist
-        require(whitelistVoter[_address].isRegistered == true, "This address is not registered to the vote");
-
-        uint votedProposalId = whitelistVoter[_address].votedProposalId;
-        string memory proposalChoosen = proposals[votedProposalId].description;
-        // Vérifier que l'adresse a déjà voté
-        if( keccak256(abi.encodePacked(proposalChoosen)) == keccak256(abi.encodePacked(""))) {
-            proposalChoosen = "This address has not voted yet";
-        }
-        return proposalChoosen;
+    // Retourne le nombre actuel de votant
+    function getVoterCount() external view returns(uint){
+        return voterCount;
     }
 
-    //////////////////////////////////////////////// Fonctions utiles ////////////////////////////////////////////////
-
-    function concatenateStrings(string memory a, string memory b) public pure returns (string memory) {
-        bytes memory concatenatedBytes = abi.encodePacked(a, b);
-        return string(concatenatedBytes);
+    // Retourne le nombre actuel de votes
+    function getVoteCountTotal() external view returns(uint){
+        return voteCountTotal;
     }
 
+    // Retourne le nombre actuel de gagnants
+    function getWinnerCount() external view returns(uint){
+        return winnerCount;
+    }
+
+    // Retourne le nombre de vote de la proposition gagnante
+    function getVoteWinnerCount() external view returns(uint){
+        return voteWinnerCount;
+    }
 
 }
