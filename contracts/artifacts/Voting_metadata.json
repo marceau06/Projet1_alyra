@@ -130,6 +130,25 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_proposalId",
+						"type": "uint256"
+					}
+				],
+				"name": "getAddressByProposalId",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "getCurrentStatus",
 				"outputs": [
@@ -183,6 +202,11 @@
 								"internalType": "uint256",
 								"name": "voteCount",
 								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "voter",
+								"type": "address"
 							}
 						],
 						"internalType": "struct Voting.Proposal[]",
@@ -214,6 +238,11 @@
 								"internalType": "uint256",
 								"name": "voteCount",
 								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "voter",
+								"type": "address"
 							}
 						],
 						"internalType": "struct Voting.Proposal",
@@ -291,6 +320,11 @@
 								"internalType": "uint256",
 								"name": "voteCount",
 								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "voter",
+								"type": "address"
 							}
 						],
 						"internalType": "struct Voting.Proposal",
@@ -349,13 +383,7 @@
 					}
 				],
 				"name": "propose",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "",
-						"type": "string"
-					}
-				],
+				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
@@ -469,7 +497,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/Voting.sol": "Voting"
+			"contracts/VotingExtended.sol": "Voting"
 		},
 		"evmVersion": "cancun",
 		"libraries": {},
@@ -499,12 +527,12 @@
 				"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF"
 			]
 		},
-		"contracts/Voting.sol": {
-			"keccak256": "0x4cdf258f0013813c7cdf714a99a3ddbb4977414d03aa867240053d960f139273",
+		"contracts/VotingExtended.sol": {
+			"keccak256": "0xe63438ba1261be733ff6f45338e6884ae53beb274146c17dea76938cbdf79ea1",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://828c9032aefb2ff05dd6458e4af303c94a5d69ee11282e0d0c773b6b7551ec3f",
-				"dweb:/ipfs/Qmc36v72LBehrNYg3wesvyawkTUwLmoeHZVQtv8e72ueTT"
+				"bzz-raw://3e992c65393ec69b7d5a513d3fe8a88cbd4e779a86d31b8139b29b4752dceb86",
+				"dweb:/ipfs/QmX9uk1x8PSdUpu7vGP2fwcjPZgj42E8Ttkgbawzp18VHN"
 			]
 		}
 	},

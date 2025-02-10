@@ -3,14 +3,6 @@ pragma solidity 0.8.28;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-// Si vote n'a pas de max ex
-// Empecher de register deux fois le meme votant OK
-// Empecher de proposer deux fois le meme votant ou limiter à une seule proposition
-// Empecher de lancer la proposal season si pas de votants enregistrés
-// Si il y a plusieurs votants, et que certains ont voté 0 et le reste n'a pas voté
-// Si il y a plusieurs votants, et que certains ont voté mais la majorité n'a pas voté et donc 0 est l'indice le plus présent dans votedProposalId
-
-
 contract Voting is Ownable {
 
     //////////////////////////////////////////////// Variables ////////////////////////////////////////////////
@@ -48,7 +40,7 @@ contract Voting is Ownable {
     // Nombre de gagnants
     uint winnerCount; 
 
-    // Nombre de Svotes de la proposition gagnante
+    // Nombre de votes de la proposition gagnante
     uint voteWinnerCount = 1; 
 
     // Evenements
@@ -93,7 +85,7 @@ contract Voting is Ownable {
         return "Ok proposal registered";
     }
 
-    function vote(uint256 _proposald) external restrictOwner {
+    function vote(uint256 _proposald) external restrictOwnerToVote {
         require(_proposald < proposals.length, "This proposal ID does not exists");
         whitelistVoter[msg.sender].hasVoted = true;
         whitelistVoter[msg.sender].votedProposalId = _proposald;
@@ -102,7 +94,7 @@ contract Voting is Ownable {
         emit Voted(msg.sender, _proposald);
     } 
 
-    modifier restrictOwner(){
+    modifier restrictOwnerToVote(){
         if(owner() == msg.sender) {
             require(winnerCount > 1, "You can only vote if there is more than 1 winner");
             winnerCount = 1;
@@ -155,46 +147,7 @@ contract Voting is Ownable {
         emit WorkflowStatusChange(WorkflowStatus(uint(currentStatus) - 1), currentStatus);
     }
 
-    function reset() external onlyOwner {
-        require(currentStatus ==  WorkflowStatus.VotesTallied, "The last vote has not been tallied");
-
-        // for (uint i = 0; i < proposals.length; i++) {
-        //     whitelistVoter
-        // }
-                    // mapping(address => Voter) whitelistVoter;
-        //
-        delete proposals;
-        winnerCount = 0;        
-        winningProposalId = 0; 
-        voterCount = 0;
-        voteCountTotal = 0;
-        numberProposal = 0;
-
-    }
-
     //////////////////////////////////////////////// Fonctions getter et setter ////////////////////////////////////////////////
-    
-    // // Retourne l'ID de la proposition pour laquelle un électeur a voté
-    // function getVotedProposalIdByAddress(address _address) external view returns(uint){
-    //     // Vérifier que l'adresse a été ajoutée à la whitelist
-    //     require(whitelistVoter[_address].isRegistered == true, "This address is not registered");
-    //     return whitelistVoter[_address].votedProposalId;
-    // }
-
-    // // Retourne la proposition pour laquelle un votant a voté
-    // function getVoterProposal(address _address) external view returns (string memory) {
-    //     // Vérifier que l'adresse a été ajoutée à la whitelist
-    //     require(whitelistVoter[_address].isRegistered == true, "This address is not registered");
-
-    //     uint votedProposalId = whitelistVoter[_address].votedProposalId;
-    //     string memory proposalChoosen = proposals[votedProposalId].description;
-
-    //     // Vérifier que l'adresse a déjà voté
-    //     if( keccak256(abi.encodePacked(proposalChoosen)) == keccak256(abi.encodePacked(""))) {
-    //         proposalChoosen = "This address has not voted yet";
-    //     }
-    //     return proposalChoosen;
-    // }
 
     function getVoteByAddress(address _address) external view returns(Proposal memory){
         // Vérifier que l'adresse a été ajoutée à la whitelist
