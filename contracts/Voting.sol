@@ -70,7 +70,7 @@ contract Voting is Ownable {
 
     //////////////////////////////////////////////// Fonctions électeurs ////////////////////////////////////////////////
 
-    function propose(string memory _proposal) external returns (string memory){
+    function propose(string memory _proposal) external {
         require(currentStatus == WorkflowStatus.ProposalsRegistrationStarted, "The proposal session is not started"); 
         require(owner() != msg.sender, "You are the owner of this contract, you can not propose");
         require(whitelistVoter[msg.sender].isRegistered == true, "You are not registered");
@@ -81,8 +81,6 @@ contract Voting is Ownable {
         }));
         numberProposal++;
         emit ProposalRegistered(numberProposal);
-
-        return "Ok proposal registered";
     }
 
     function vote(uint _proposalId) external restrictOwnerToVote(_proposalId) {

@@ -349,13 +349,7 @@
 					}
 				],
 				"name": "propose",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "",
-						"type": "string"
-					}
-				],
+				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
@@ -493,11 +487,11 @@
 			]
 		},
 		"contracts/Voting.sol": {
-			"keccak256": "0x63ccbf6186c50aeb3e1db01d23b4aa23630720bb7e74b657b1ade2fee81f73fe",
+			"keccak256": "0x9a9033ca523032e52f757986fe420b02f6323ced296db2ab9fb9a6fdc38c9208",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://a8c20b25bef7499e64e027c1069c56a3156d3fb5f7a1797f6e98bd6e6a6da19e",
-				"dweb:/ipfs/Qmb7LN2rubdo48tJGeZvmFZyhQXn4Gs9xy532nEe5qpcE8"
+				"bzz-raw://fc4905db106865f69501f84b72a9c04707d3d5405c5d1d92e0b1ddc460478dd3",
+				"dweb:/ipfs/QmXf4HseDw8atdHrCossoxBcLR6RJZhjRAfCG2onh8vioN"
 			]
 		}
 	},
